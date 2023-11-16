@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,16 @@ namespace PhotosApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<PhotosServiceOptions>(configuration.GetSection("PhotosService"));
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+            });
 
             var mvc = services.AddControllersWithViews();
             services.AddRazorPages();
@@ -78,6 +89,10 @@ namespace PhotosApp
             app.UseSerilogRequestLogging();
 
             app.UseRouting();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute("default", "{controller=Photos}/{action=Index}/{id?}");

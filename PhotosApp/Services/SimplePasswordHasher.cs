@@ -25,10 +25,17 @@ namespace PhotosApp.Services
         public PasswordVerificationResult VerifyHashedPassword(TUser user,
             string hashedPassword, string providedPassword)
         {
-            byte[] expectedHashBytes = null;
-            byte[] actualHashBytes = null;
+            var hashedPasswordBytes = Convert.FromBase64String(hashedPassword);
+            var saltBytes = new byte[16];
 
-            throw new NotImplementedException();
+            Buffer.BlockCopy(
+                hashedPasswordBytes, 0,
+                saltBytes, 0,
+                16
+            );
+
+            byte[] expectedHashBytes = hashedPasswordBytes;
+            byte[] actualHashBytes = ConcatenateBytes(saltBytes, GetHashBytes(providedPassword, saltBytes));
 
             // Если providedPassword корректен, то в результате хэширования его с той же самой солью,
             // что и оригинальный пароль, должен получаться тот же самый хэш.
@@ -44,6 +51,7 @@ namespace PhotosApp.Services
             {
                 rng.GetBytes(saltBytes);
             }
+
             return saltBytes;
         }
 
@@ -60,7 +68,7 @@ namespace PhotosApp.Services
         private static byte[] ConcatenateBytes(byte[] leftBytes, byte[] rightBytes)
         {
             var resultBytes = new byte[leftBytes.Length + rightBytes.Length];
-            
+
             Buffer.BlockCopy(
                 leftBytes, 0, // байты источника и позиция в них
                 resultBytes, 0, // байты назначения и начальная позиция в них
@@ -70,7 +78,7 @@ namespace PhotosApp.Services
                 rightBytes, 0, // байты источника и позиция в них
                 resultBytes, leftBytes.Length, // байты назначения и начальная позиция в них
                 rightBytes.Length); // количество байтов, которое надо скопировать
-            
+
             return resultBytes;
         }
 
