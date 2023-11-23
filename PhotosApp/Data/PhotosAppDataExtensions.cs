@@ -28,9 +28,15 @@ namespace PhotosApp.Data
                         var photosDbContext = scope.ServiceProvider.GetRequiredService<PhotosDbContext>();
                         photosDbContext.SeedWithSamplePhotosAsync().Wait();
 
+                        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                        roleManager.SeedWithSampleRolesAsync().Wait();
+
                         var users = scope.ServiceProvider.GetRequiredService<UserManager<PhotosAppUser>>();
                         users.SeedWithSampleUsersAsync().Wait();
 
+                        users.AddToRoleAsync(users.Users.First(user => user.UserName == "dev@gmail.com"), "Dev").Wait();
+
+                        scope.ServiceProvider.GetRequiredService<TicketsDbContext>().Database.Migrate();
                         var ticketsDbContext = scope.ServiceProvider.GetRequiredService<TicketsDbContext>();
                         ticketsDbContext.SeedWithSampleTicketsAsync().Wait();
                     }
