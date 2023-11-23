@@ -41,6 +41,8 @@ namespace PhotosApp.Areas.Identity
                 services.AddTransient<EntityTicketStore>();
                 services.ConfigureApplicationCookie(options =>
                 {
+                    var serviceProvider = services.BuildServiceProvider();
+                    options.SessionStore = serviceProvider.GetRequiredService<EntityTicketStore>();
                     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                     options.Cookie.Name = "PhotosApp.Auth";
                     options.Cookie.HttpOnly = true;
